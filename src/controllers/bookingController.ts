@@ -151,3 +151,27 @@ export const deleteBooking = async (req: Request, res: Response) => {
     res.status(500).json({ error: message });
   }
 };
+
+
+export const getAllBookingsAdmin = async (req: Request, res: Response) => {
+  try {
+    // Join Bookings -> Spaces -> Profiles
+    // Note: This requires foreign keys to be set up correctly in Supabase
+    const { data, error } = await supabase
+      .from('bookings')
+      .select(`
+        id,
+        start_time,
+        end_time,
+        created_at,
+        spaces ( name, type ),
+        profiles ( email )
+      `)
+      .order('start_time', { ascending: false });
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};

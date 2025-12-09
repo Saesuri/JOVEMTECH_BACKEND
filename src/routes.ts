@@ -15,6 +15,10 @@ import {
   deleteBooking,
   getAllBookingsAdmin,
 } from "./controllers/bookingController"; // Import
+import { getRoomTypes, createRoomType, deleteRoomType, getUsers, updateUserRole, toggleRoomStatus } from './controllers/configController';
+import { getLogs } from "./controllers/logController";
+import { getProfile, updateProfile } from "./controllers/userController";
+
 
 const router = Router();
 
@@ -40,4 +44,19 @@ router.get("/bookings/user/:user_id", getBookingsByUser); // <--- NEW
 router.delete("/bookings/:id", deleteBooking); // <--- NEW
 router.get('/admin/bookings', getAllBookingsAdmin);
 
+// Config Routes
+router.get('/config/room-types', getRoomTypes);
+router.post('/config/room-types', createRoomType);
+router.delete('/config/room-types/:id', deleteRoomType);
+
+router.get('/config/users', getUsers);
+router.put('/config/users/:id/role', updateUserRole);
+router.put('/config/spaces/:id/status', toggleRoomStatus); // New route for maintenance
+
+// --- NEW PROFILE ROUTES ---
+router.get('/profiles/:id', getProfile);
+router.put('/profiles/:id', updateProfile);
+
+// Logs
+router.get('/admin/logs', getLogs);
 export default router;

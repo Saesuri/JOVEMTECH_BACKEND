@@ -67,7 +67,7 @@ export const getSpaces = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllSpacesGlobal = async (req: Request, res: Response) => {
+export const getAllSpacesGlobal = async (_req: Request, res: Response) => {
   try {
     const { data, error } = await supabase
       .from("spaces")

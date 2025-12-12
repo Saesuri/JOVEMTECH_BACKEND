@@ -32,43 +32,188 @@ import {
 import { getLogs } from "./controllers/logController";
 import { getProfile, updateProfile } from "./controllers/userController";
 
+// Middleware
+import { authMiddleware, requireRole } from "./middleware";
+import {
+  validate,
+  createFloorSchema,
+  updateFloorSchema,
+  createSpaceSchema,
+  updateSpaceSchema,
+  createBookingSchema,
+  checkAvailabilitySchema,
+  createRoomTypeSchema,
+  updateUserRoleSchema,
+  toggleRoomStatusSchema,
+  updateProfileSchema,
+  uuidParamSchema,
+  userIdParamSchema,
+} from "./validators";
+
 const router = Router();
 
-// Floors
-router.get("/floors", getFloors);
-router.post("/floors", createFloor);
-router.put("/floors/:id", updateFloor);
-router.delete("/floors/:id", deleteFloor);
-router.get("/floors/:id/stats", getFloorStats);
+// ============================================
+// PUBLIC ROUTES (No auth required)
+// ============================================
+// These routes are for reading data and are accessible without authentication
+// This allows the frontend to display data before login if needed
 
-// Spaces
-router.post("/spaces", saveSpace);
+// Floors - Read
+router.get("/floors", getFloors);
+router.get(
+  "/floors/:id/stats",
+  validate(uuidParamSchema, "params"),
+  getFloorStats
+);
+
+// Spaces - Read
 router.get("/spaces", getSpaces);
-router.put("/spaces/:id", updateSpace);
-router.delete("/spaces/:id", deleteSpace);
 router.get("/admin/spaces", getAllSpacesGlobal);
 
-// Bookings
-router.post("/bookings", createBooking);
+// Bookings - Read
 router.get("/bookings", getBookingsBySpace);
-router.get("/bookings/occupied", checkAvailability); // <--- Add this
-router.get("/bookings/user/:user_id", getBookingsByUser); // <--- NEW
-router.delete("/bookings/:id", deleteBooking); // <--- NEW
-router.get("/admin/bookings", getAllBookingsAdmin);
+router.get(
+  "/bookings/occupied",
+  validate(checkAvailabilitySchema, "query"),
+  checkAvailability
+);
 
-// Config Routes
+// Config - Read
 router.get("/config/room-types", getRoomTypes);
-router.post("/config/room-types", createRoomType);
-router.delete("/config/room-types/:id", deleteRoomType);
 
-router.get("/config/users", getUsers);
-router.put("/config/users/:id/role", updateUserRole);
-router.put("/config/spaces/:id/status", toggleRoomStatus); // New route for maintenance
+// ============================================
+// PROTECTED ROUTES (Auth required)
+// ============================================
 
-// --- NEW PROFILE ROUTES ---
-router.get("/profiles/:id", getProfile);
-router.put("/profiles/:id", updateProfile);
+// Floors - Write (Admin only)
+router.post(
+  "/floors",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(createFloorSchema),
+  createFloor
+);
+router.put(
+  "/floors/:id",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  validate(updateFloorSchema),
+  updateFloor
+);
+router.delete(
+  "/floors/:id",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  deleteFloor
+);
 
-// Logs
-router.get("/admin/logs", getLogs);
+// Spaces - Write (Admin only)
+router.post(
+  "/spaces",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(createSpaceSchema),
+  saveSpace
+);
+router.put(
+  "/spaces/:id",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  validate(updateSpaceSchema),
+  updateSpace
+);
+router.delete(
+  "/spaces/:id",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  deleteSpace
+);
+
+// Bookings - Write (Authenticated users)
+router.post(
+  "/bookings",
+  authMiddleware,
+  validate(createBookingSchema),
+  createBooking
+);
+router.get(
+  "/bookings/user/:user_id",
+  authMiddleware,
+  validate(userIdParamSchema, "params"),
+  getBookingsByUser
+);
+router.delete(
+  "/bookings/:id",
+  authMiddleware,
+  validate(uuidParamSchema, "params"),
+  deleteBooking
+);
+
+// Admin Bookings
+router.get(
+  "/admin/bookings",
+  authMiddleware,
+  requireRole(["admin"]),
+  getAllBookingsAdmin
+);
+
+// Config - Write (Admin only)
+router.post(
+  "/config/room-types",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(createRoomTypeSchema),
+  createRoomType
+);
+router.delete(
+  "/config/room-types/:id",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  deleteRoomType
+);
+
+// User Management (Admin only)
+router.get("/config/users", authMiddleware, requireRole(["admin"]), getUsers);
+router.put(
+  "/config/users/:id/role",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  validate(updateUserRoleSchema),
+  updateUserRole
+);
+
+// Maintenance Toggle (Admin only)
+router.put(
+  "/config/spaces/:id/status",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  validate(toggleRoomStatusSchema),
+  toggleRoomStatus
+);
+
+// Profile Routes (Authenticated users - own profile only)
+router.get(
+  "/profiles/:id",
+  authMiddleware,
+  validate(uuidParamSchema, "params"),
+  getProfile
+);
+router.put(
+  "/profiles/:id",
+  authMiddleware,
+  validate(uuidParamSchema, "params"),
+  validate(updateProfileSchema),
+  updateProfile
+);
+
+// Logs (Admin only)
+router.get("/admin/logs", authMiddleware, requireRole(["admin"]), getLogs);
+
 export default router;

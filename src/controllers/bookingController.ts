@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
-import { supabase } from '../config/supabaseClient';
-import { writeLog } from './logController';
+import { Request, Response } from "express";
+import { supabase } from "../config/supabaseClient";
+import { writeLog } from "./logController";
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
     const { space_id, user_id, start_time, end_time } = req.body;
     // For bookings, the actor is the user passed in body OR the header
-    const actorId = req.headers['x-user-id'] || user_id;
+    const actorId = req.headers["x-user-id"] || user_id;
 
     if (!space_id || !user_id || !start_time || !end_time) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -17,26 +17,27 @@ export const createBooking = async (req: Request, res: Response) => {
 
     // Conflict Check
     const { data: conflicts, error: conflictError } = await supabase
-      .from('bookings')
-      .select('id')
-      .eq('space_id', space_id)
-      .lt('start_time', end.toISOString())
-      .gt('end_time', start.toISOString());
+      .from("bookings")
+      .select("id")
+      .eq("space_id", space_id)
+      .lt("start_time", end.toISOString())
+      .gt("end_time", start.toISOString());
 
     if (conflictError) throw conflictError;
-    if (conflicts && conflicts.length > 0) return res.status(409).json({ error: "Time slot occupied" });
+    if (conflicts && conflicts.length > 0)
+      return res.status(409).json({ error: "Time slot occupied" });
 
     // Create
     const { data, error } = await supabase
-      .from('bookings')
+      .from("bookings")
       .insert([{ space_id, user_id, start_time, end_time }])
-      .select('*, spaces(name)'); // Get space name for log
+      .select("*, spaces(name)"); // Get space name for log
 
     if (error) throw error;
 
     // LOG
-    const roomName = (data[0] as any).spaces?.name || 'Room';
-    await writeLog(actorId, 'CREATE_BOOKING', `Booked ${roomName}`);
+    const roomName = (data[0] as any).spaces?.name || "Room";
+    await writeLog(actorId, "CREATE_BOOKING", `Booked ${roomName}`);
 
     res.json(data[0]);
   } catch (error: any) {
@@ -47,73 +48,87 @@ export const createBooking = async (req: Request, res: Response) => {
 export const getBookingsBySpace = async (req: Request, res: Response) => {
   try {
     const { space_id } = req.query;
-    const { data, error } = await supabase.from('bookings').select('*').eq('space_id', space_id);
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("space_id", space_id);
     if (error) throw error;
     res.json(data);
-  } catch (error: any) { res.status(500).json({ error: error.message }); }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const checkAvailability = async (req: Request, res: Response) => {
   try {
     const { start_time, end_time } = req.query;
-    if (!start_time || !end_time) return res.status(400).json({ error: "Params missing" });
+    if (!start_time || !end_time)
+      return res.status(400).json({ error: "Params missing" });
 
     const { data, error } = await supabase
-      .from('bookings')
-      .select('space_id')
-      .lt('start_time', end_time)
-      .gt('end_time', start_time);
+      .from("bookings")
+      .select("space_id")
+      .lt("start_time", end_time)
+      .gt("end_time", start_time);
 
     if (error) throw error;
     const occupiedIds = [...new Set(data.map((b: any) => b.space_id))];
     res.json(occupiedIds);
-  } catch (error: any) { res.status(500).json({ error: error.message }); }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const getBookingsByUser = async (req: Request, res: Response) => {
   try {
     const { user_id } = req.params;
     const { data, error } = await supabase
-      .from('bookings')
-      .select('*, spaces(name, type)')
-      .eq('user_id', user_id)
-      .order('start_time', { ascending: true });
+      .from("bookings")
+      .select("*, spaces(name, type)")
+      .eq("user_id", user_id)
+      .order("start_time", { ascending: true });
     if (error) throw error;
     res.json(data);
-  } catch (error: any) { res.status(500).json({ error: error.message }); }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-export const getAllBookingsAdmin = async (req: Request, res: Response) => {
+export const getAllBookingsAdmin = async (_req: Request, res: Response) => {
   try {
     const { data, error } = await supabase
-      .from('bookings')
-      .select('id, start_time, end_time, created_at, spaces(name, type), profiles(email)')
-      .order('start_time', { ascending: false });
+      .from("bookings")
+      .select(
+        "id, start_time, end_time, created_at, spaces(name, type), profiles(email)"
+      )
+      .order("start_time", { ascending: false });
     if (error) throw error;
     res.json(data);
-  } catch (error: any) { res.status(500).json({ error: error.message }); }
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const deleteBooking = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.headers['x-user-id']; // Who clicked delete?
+    const userId = req.headers["x-user-id"]; // Who clicked delete?
 
     // Fetch details before delete
     const { data: booking } = await supabase
-      .from('bookings')
-      .select('*, spaces(name), profiles(email)')
-      .eq('id', id)
+      .from("bookings")
+      .select("*, spaces(name), profiles(email)")
+      .eq("id", id)
       .single();
 
-    const { error } = await supabase.from('bookings').delete().eq('id', id);
+    const { error } = await supabase.from("bookings").delete().eq("id", id);
     if (error) throw error;
 
     // LOG
     if (booking) {
       await writeLog(
         userId,
-        'CANCEL_BOOKING',
+        "CANCEL_BOOKING",
         `Cancelled booking for ${booking.profiles?.email} in ${booking.spaces?.name}`
       );
     }

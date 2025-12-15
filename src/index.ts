@@ -13,7 +13,9 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   "http://localhost:5173", // Vite dev server
   "http://localhost:3000", // Alternative dev server
-  // Add production URL here when available
+  // Production URLs (Vercel)
+  "https://jovemtech-frontend.vercel.app",
+  // Also allow any Vercel preview deployments
 ];
 
 const corsOptions: cors.CorsOptions = {
@@ -21,11 +23,17 @@ const corsOptions: cors.CorsOptions = {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
 
+    // Check if origin is in allowed list
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, true);
     }
+
+    // Allow Vercel preview deployments (*.vercel.app)
+    if (origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+
+    callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

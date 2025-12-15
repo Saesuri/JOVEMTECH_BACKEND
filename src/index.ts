@@ -48,7 +48,7 @@ app.use(generalLimiter);
 // Routes
 app.use("/api", router);
 
-// Health Check (no auth required)
+// Health Check
 app.get("/", (_req, res) => {
   res.json({
     status: "ok",
@@ -61,7 +61,7 @@ app.get("/", (_req, res) => {
 // 404 Handler
 app.use(notFoundHandler);
 
-// Global Error Handler (must be last)
+// Global Error Handler
 app.use(errorHandler);
 
 app.listen(PORT, () => {

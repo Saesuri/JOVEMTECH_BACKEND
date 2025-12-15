@@ -46,8 +46,12 @@ export const createBookingSchema = z
   .object({
     space_id: z.string().uuid("Invalid space ID"),
     user_id: z.string().uuid("Invalid user ID"),
-    start_time: z.string().datetime({ message: "Invalid start time format" }),
-    end_time: z.string().datetime({ message: "Invalid end time format" }),
+    start_time: z
+      .string()
+      .datetime({ offset: true, message: "Invalid start time format" }),
+    end_time: z
+      .string()
+      .datetime({ offset: true, message: "Invalid end time format" }),
   })
   .refine((data) => new Date(data.end_time) > new Date(data.start_time), {
     message: "End time must be after start time",
@@ -55,8 +59,12 @@ export const createBookingSchema = z
   });
 
 export const checkAvailabilitySchema = z.object({
-  start_time: z.string().datetime({ message: "Invalid start time format" }),
-  end_time: z.string().datetime({ message: "Invalid end time format" }),
+  start_time: z
+    .string()
+    .datetime({ offset: true, message: "Invalid start time format" }),
+  end_time: z
+    .string()
+    .datetime({ offset: true, message: "Invalid end time format" }),
 });
 
 // ============================================
@@ -86,6 +94,8 @@ export const updateProfileSchema = z.object({
   full_name: z.string().max(100).optional(),
   phone: z.string().max(20).optional(),
   department: z.string().max(100).optional(),
+  // Demo mode: allow users to set their own role on registration
+  role: z.enum(["user", "admin"]).optional(),
 });
 
 // ============================================

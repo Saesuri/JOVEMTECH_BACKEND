@@ -71,9 +71,15 @@ export const checkAvailabilitySchema = z.object({
 // CONFIG SCHEMAS
 // ============================================
 
+// Room type - only label required (value auto-generated from label)
 export const createRoomTypeSchema = z.object({
-  value: z.string().min(1, "Value is required").max(50),
   label: z.string().min(1, "Label is required").max(100),
+});
+
+// Amenity - label required, icon optional
+export const createAmenitySchema = z.object({
+  label: z.string().min(1, "Label is required").max(100),
+  icon: z.string().max(50).optional(),
 });
 
 export const updateUserRoleSchema = z.object({

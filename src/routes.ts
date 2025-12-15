@@ -25,6 +25,9 @@ import {
   getRoomTypes,
   createRoomType,
   deleteRoomType,
+  getAmenities,
+  createAmenity,
+  deleteAmenity,
   getUsers,
   updateUserRole,
   toggleRoomStatus,
@@ -43,6 +46,7 @@ import {
   createBookingSchema,
   checkAvailabilitySchema,
   createRoomTypeSchema,
+  createAmenitySchema,
   updateUserRoleSchema,
   toggleRoomStatusSchema,
   updateProfileSchema,
@@ -80,6 +84,7 @@ router.get(
 
 // Config - Read
 router.get("/config/room-types", getRoomTypes);
+router.get("/config/amenities", getAmenities);
 
 // ============================================
 // PROTECTED ROUTES (Auth required)
@@ -177,7 +182,21 @@ router.delete(
   deleteRoomType
 );
 
-// User Management (Admin only)
+// Amenities - Write (Admin only)
+router.post(
+  "/config/amenities",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(createAmenitySchema),
+  createAmenity
+);
+router.delete(
+  "/config/amenities/:id",
+  authMiddleware,
+  requireRole(["admin"]),
+  validate(uuidParamSchema, "params"),
+  deleteAmenity
+);
 router.get("/config/users", authMiddleware, requireRole(["admin"]), getUsers);
 router.put(
   "/config/users/:id/role",

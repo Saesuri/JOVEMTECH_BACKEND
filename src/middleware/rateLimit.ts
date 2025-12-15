@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit";
+import { Request } from "express";
 
 /**
  * General API rate limiter.
@@ -12,7 +13,7 @@ export const generalLimiter = rateLimit({
   message: {
     error: "Too many requests, please try again later.",
   },
-  skip: (req) => {
+  skip: (req: Request) => {
     // Skip rate limiting for health check
     return req.path === "/";
   },

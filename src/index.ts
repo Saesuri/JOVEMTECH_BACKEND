@@ -41,7 +41,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use("/api", router); // All routes will start with /api (e.g., /api/floors)
 
 // Health Check
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("API is running...");
 });
 

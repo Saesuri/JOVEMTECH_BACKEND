@@ -39,7 +39,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { full_name, phone, department, role } = req.body;
+    const { full_name, phone, department } = req.body;
     const actorId = req.headers["x-user-id"];
 
     // Use UPSERT instead of UPDATE
@@ -51,8 +51,6 @@ export const updateProfile = async (req: Request, res: Response) => {
         full_name,
         phone,
         department,
-        // Demo mode: allow users to set their own role on registration
-        ...(role && { role }),
       })
       .select();
 

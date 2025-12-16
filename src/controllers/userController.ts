@@ -14,7 +14,6 @@ export const getProfile = async (req: Request, res: Response) => {
       .single();
 
     if (error) {
-      // Error code PGRST116 means "No rows returned" (Profile missing)
       if (error.code === "PGRST116") {
         console.warn(`Profile missing for ${id}, returning default skeleton.`);
         // Return a dummy profile so the UI loads successfully
@@ -42,16 +41,15 @@ export const updateProfile = async (req: Request, res: Response) => {
     const { full_name, phone, department, role } = req.body;
     const actorId = req.headers["x-user-id"];
 
-    // Use UPSERT instead of UPDATE
-    // This creates the row if it doesn't exist
+
     const { data, error } = await supabase
       .from("profiles")
       .upsert({
-        id, // Key to match
+        id, 
         full_name,
         phone,
         department,
-        // Demo mode: allow users to set their own role on registration
+        // Demo mode
         ...(role && { role }),
       })
       .select();

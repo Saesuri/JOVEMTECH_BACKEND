@@ -15,7 +15,7 @@ export const getFloors = async (_req: Request, res: Response) => {
 export const createFloor = async (req: Request, res: Response) => {
   try {
     const { name, width, height } = req.body;
-    const userId = req.headers["x-user-id"]; // Get Actor
+    const userId = req.headers["x-user-id"]; 
 
     const { data, error } = await supabase
       .from("floors")

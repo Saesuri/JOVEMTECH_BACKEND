@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabaseClient";
 
-// Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
@@ -14,10 +13,7 @@ declare global {
   }
 }
 
-/**
- * Authentication middleware that verifies Supabase JWT tokens.
- * Extracts user info and attaches it to req.user.
- */
+
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -64,10 +60,7 @@ export const authMiddleware = async (
   }
 };
 
-/**
- * Optional auth middleware - doesn't require auth but attaches user if present.
- * Useful for routes that work for both authenticated and anonymous users.
- */
+
 export const optionalAuthMiddleware = async (
   req: Request,
   _res: Response,
@@ -97,15 +90,12 @@ export const optionalAuthMiddleware = async (
 
     next();
   } catch (error) {
-    // Don't fail on optional auth errors, just continue without user
+
     next();
   }
 };
 
-/**
- * Role-based authorization middleware.
- * Must be used after authMiddleware.
- */
+
 export const requireRole = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {

@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-/**
- * Custom API Error class with status code.
- */
+
 export class ApiError extends Error {
   statusCode: number;
   isOperational: boolean;
@@ -15,10 +13,7 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Global error handler middleware.
- * Logs errors server-side and returns sanitized responses to clients.
- */
+
 export const errorHandler = (
   err: Error | ApiError,
   req: Request,
@@ -34,7 +29,7 @@ export const errorHandler = (
     timestamp: new Date().toISOString(),
   });
 
-  // Check if it's an operational error (expected) or programming error
+
   if (err instanceof ApiError && err.isOperational) {
     res.status(err.statusCode).json({
       error: err.message,
@@ -58,10 +53,7 @@ export const errorHandler = (
   }
 };
 
-/**
- * Async handler wrapper to catch errors in async route handlers.
- * Eliminates the need for try-catch in every controller.
- */
+
 export const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
 ) => {
@@ -70,9 +62,6 @@ export const asyncHandler = (
   };
 };
 
-/**
- * Not found handler for undefined routes.
- */
 export const notFoundHandler = (
   req: Request,
   res: Response,

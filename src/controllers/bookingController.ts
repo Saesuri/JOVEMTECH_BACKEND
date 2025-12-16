@@ -5,7 +5,6 @@ import { writeLog } from "./logController";
 export const createBooking = async (req: Request, res: Response) => {
   try {
     const { space_id, user_id, start_time, end_time } = req.body;
-    // For bookings, the actor is the user passed in body OR the header
     const actorId = req.headers["x-user-id"] || user_id;
 
     if (!space_id || !user_id || !start_time || !end_time) {
@@ -31,7 +30,7 @@ export const createBooking = async (req: Request, res: Response) => {
     const { data, error } = await supabase
       .from("bookings")
       .insert([{ space_id, user_id, start_time, end_time }])
-      .select("*, spaces(name)"); // Get space name for log
+      .select("*, spaces(name)"); 
 
     if (error) throw error;
 
@@ -112,7 +111,7 @@ export const getAllBookingsAdmin = async (_req: Request, res: Response) => {
 export const deleteBooking = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.headers["x-user-id"]; // Who clicked delete?
+    const userId = req.headers["x-user-id"]; 
 
     // Fetch details before delete
     const { data: booking } = await supabase

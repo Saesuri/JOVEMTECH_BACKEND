@@ -1,16 +1,14 @@
 import { Request, Response } from "express";
 import { supabase } from "../config/supabaseClient";
 
-// Helper function to write logs
-// We use 'any' for the actor_id temporarily to handle cases where header might be string array
+
 export const writeLog = async (
   actor_id: any,
   action: string,
   details: string
 ) => {
-  if (!actor_id) return; // Don't log anonymous actions (or log as 'system')
+  if (!actor_id) return; 
 
-  // Ensure actor_id is a string
   const uid = Array.isArray(actor_id) ? actor_id[0] : actor_id;
 
   try {

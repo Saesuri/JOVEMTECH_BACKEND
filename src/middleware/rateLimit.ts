@@ -1,10 +1,7 @@
 import rateLimit from "express-rate-limit";
 import { Request } from "express";
 
-/**
- * General API rate limiter.
- * Limits each IP to 100 requests per 15 minute window.
- */
+
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
@@ -19,10 +16,7 @@ export const generalLimiter = rateLimit({
   },
 });
 
-/**
- * Stricter rate limiter for sensitive operations.
- * Limits each IP to 20 requests per 15 minute window.
- */
+
 export const strictLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20,
@@ -33,10 +27,7 @@ export const strictLimiter = rateLimit({
   },
 });
 
-/**
- * Very strict rate limiter for authentication attempts.
- * Limits each IP to 5 requests per 15 minute window.
- */
+
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5,

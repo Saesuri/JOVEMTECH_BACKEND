@@ -16,7 +16,6 @@ export const saveSpace = async (req: Request, res: Response) => {
     } = req.body;
     const userId = req.headers["x-user-id"];
 
-    // Check if inserting or updating
     const isUpdate = !!id;
 
     const { data, error } = await supabase

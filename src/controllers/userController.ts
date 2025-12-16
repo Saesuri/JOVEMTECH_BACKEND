@@ -49,11 +49,6 @@ export const updateProfile = async (req: Request, res: Response) => {
         full_name,
         phone,
         department,
-<<<<<<< HEAD
-        // Demo mode
-        ...(role && { role }),
-=======
->>>>>>> 766233a049922018501d72d9a6020cd33bd39fcd
       })
       .select();
 

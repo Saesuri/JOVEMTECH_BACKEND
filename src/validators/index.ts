@@ -100,8 +100,6 @@ export const updateProfileSchema = z.object({
   full_name: z.string().max(100).optional(),
   phone: z.string().max(20).optional(),
   department: z.string().max(100).optional(),
-  // Demo mode: allow users to set their own role on registration
-  role: z.enum(["user", "admin"]).optional(),
 });
 
 // ============================================
